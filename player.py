@@ -11,10 +11,11 @@ class Player:
         self.stored_direction = None
         self.allowed_to_move = True
         self.current_score = 0
+        self.speed = 2
     
     def update(self):
         if self.allowed_to_move:
-            self.pixel_pos += self.direction
+            self.pixel_pos += self.direction*self.speed
 
         if int(self.pixel_pos.x+top_bottom_buffer//2) % self.app.cell_width == 0:
             if self.direction == vec(1,0) or self.direction == vec(-1,0):
