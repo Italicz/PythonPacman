@@ -16,6 +16,7 @@ class App:
         self.cell_width =maze_width//28
         self.cell_height = maze_height//30
         self.player = Player(self, player_start_pos)
+        self.walls = []
 
         self.load()
         #self.run()
@@ -50,6 +51,14 @@ class App:
     def load(self):
         self.maze = pygame.image.load('images/maze.png')
         self.maze = pygame.transform.scale(self.maze, (maze_width, maze_height))
+
+        #Opening walls file, creating list with x and y coords of walls
+        with open("walls.txt", 'r') as file:
+            for yindex, line in enumerate(file):
+                for xindex, char in enumerate(line):
+                    if char == "1":
+                        self.walls.append(vec(xindex, yindex))
+
 
 ######################## START SCREEN ########################
 
