@@ -14,12 +14,13 @@ class App:
         self.clock = pygame.time.Clock()
         self.running = True
         self.state = 'start'
-        self.cell_width =maze_width//28
-        self.cell_height = maze_height//30
+        self.cell_width =maze_width//cols
+        self.cell_height = maze_height//rows
         self.walls = []
         self.coins = []
         self.enemies = []
         self.enemy_pos = []
+        self.player_pos = None
         self.load()
         self.player = Player(self, player_start_pos)
         self.spawn_enemies()
@@ -64,6 +65,8 @@ class App:
                         self.walls.append(vec(xindex, yindex))
                     elif char == "0":
                         self.coins.append(vec(xindex, yindex))
+                    elif char == "P":
+                        self.player_pos = [xindex, yindex]
                     elif char in ["2","3","4","5"]:
                         self.enemy_pos.append(vec(xindex, yindex))
                         print(xindex, yindex)
@@ -117,7 +120,10 @@ class App:
     def playing_update(self):
         self.player.update()
         for enemy in self.enemies:
-            enemy.update()
+            enemy.update()        
+        for enemy in self.enemies:
+          if enemy.grid_pos == self.player.grid_pos:
+            self.remove_life()
     
     def playing_draw(self):
         self.screen.fill(black)
@@ -131,6 +137,18 @@ class App:
             enemy.draw()
         pygame.display.update()
         #self.coins.pop()
+
+    def remove_life(self):
+      self.player.lives -= 1
+      print("hit")
+      print(self.player.lives)
+      if self.player.lives == 0:
+        self.state == "game over"
+      else:
+        self.player.grid_pos = vec(self.player_pos)
+        self.player.pixel_pos = self.player.get_pix_pos()
+        self.player.direction *= 0
+
 
     def draw_grid(self):
         for x in range(width//self.cell_width):

@@ -8,6 +8,9 @@ start_font = 'lithograph'
 top_bottom_buffer = 50
 maze_width, maze_height = width-top_bottom_buffer, height-top_bottom_buffer
 
+cols = 28
+rows = 30
+
 #Colour settings
 black = (0,0,0)
 red = (208, 22, 22)
