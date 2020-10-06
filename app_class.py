@@ -22,7 +22,7 @@ class App:
         self.enemy_pos = []
         self.player_pos = None
         self.load()
-        self.player = Player(self, player_start_pos)
+        self.player = Player(self, vec(self.player_pos))
         self.spawn_enemies()
         self.run()
     
@@ -36,6 +36,10 @@ class App:
                 self.playing_events()
                 self.playing_update()
                 self.playing_draw()
+            elif self.state == 'game over':
+                self.game_over_events()
+                self.game_over_update()
+                self.game_over_draw()
             else:
                 self.running = False
             self.clock.tick(fps)
@@ -68,7 +72,7 @@ class App:
                     elif char == "P":
                         self.player_pos = [xindex, yindex]
                     elif char in ["2","3","4","5"]:
-                        self.enemy_pos.append(vec(xindex, yindex))
+                        self.enemy_pos.append([xindex, yindex])
                         print(xindex, yindex)
                     elif char == "V":
                         pygame.draw.rect(self.maze, black, (xindex*self.cell_width, yindex*self.cell_height, self.cell_width, self.cell_height))
@@ -76,7 +80,7 @@ class App:
     def spawn_enemies(self):
         print("spawning enemies")
         for indx, pos in enumerate(self.enemy_pos):
-            self.enemies.append(Enemy(self, pos, indx))
+            self.enemies.append(Enemy(self, vec(pos), indx))
 
 
 ######################## START SCREEN ########################
@@ -143,12 +147,33 @@ class App:
       print("hit")
       print(self.player.lives)
       if self.player.lives == 0:
-        self.state == "game over"
+        self.state = "game over"
       else:
-        self.player.grid_pos = vec(self.player_pos)
+        self.player.grid_pos = vec(self.player.starting_pos)
         self.player.pixel_pos = self.player.get_pix_pos()
         self.player.direction *= 0
+        for enemy in self.enemies:
+          enemy.grid_pos = vec(enemy.starting_pos)
+          enemy.pixel_pos = enemy.get_pixel_pos()
+          enemy.direction *= 0
 
+    def reset(self):
+      self.player.lives =3
+      self.player.current_score = 0
+      self.player.grid_pos = vec(self.player.starting_pos)
+      self.player.pixel_pos = self.player.get_pix_pos()
+      self.player.direction *=0
+      for enemy in self.enemies:
+        enemy.grid_pos = vec(enemy.starting_pos)
+        enemy.pixel_pos = enemy.get_pixel_pos()
+        enemy.direction *= 0
+      self.coins = []
+      with open("walls.txt", 'r') as file:
+        for yindex, line in enumerate(file):
+          for xindex, char in enumerate(line):
+            if char == "0":
+              self.coins.append(vec(xindex, yindex))
+      self.state = "playing"
 
     def draw_grid(self):
         for x in range(width//self.cell_width):
@@ -159,3 +184,23 @@ class App:
     def draw_coins(self):
         for coin in self.coins:
             pygame.draw.circle(self.screen, (195,198,118), (int(coin.x*self.cell_width)+self.cell_width//2+top_bottom_buffer//2, int(coin.y*self.cell_height)+self.cell_height//2+top_bottom_buffer//2), 3)
+
+######################## GAME OVER SCREEN ########################
+
+    def game_over_events(self):
+      for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                self.running = False
+            if event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
+                self.reset()
+            if event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
+                self.running = False
+    def game_over_update(self):
+      pass
+
+    def game_over_draw(self):
+      self.screen.fill(black)
+      self.draw_text(self.screen, [width//2, 100], start_text_size, red, "arial", 'GAME OVER', centred=True)
+      self.draw_text(self.screen, [width//2, 300], start_text_size, (170, 140, 60), "arial", 'PRESS SPACE TO RESTART', centred=True)
+      self.draw_text(self.screen, [width//2, 400], start_text_size, (170, 140, 60), "arial", 'PRESS ESCAPE TO EXIT', centred=True)
+      pygame.display.update()

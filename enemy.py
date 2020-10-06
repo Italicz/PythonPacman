@@ -6,6 +6,7 @@ class Enemy:
     def __init__(self,app,pos, number):
         self.app = app
         self.grid_pos = pos
+        self.starting_pos = [pos.x, pos.y]
         self.pixel_pos = self.get_pixel_pos()
         self.radius = int(self.app.cell_width//2)
         self.number = number
