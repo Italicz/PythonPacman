@@ -17,17 +17,10 @@ class Player:
         if self.allowed_to_move:
             self.pixel_pos += self.direction*self.speed
 
-        if int(self.pixel_pos.x+top_bottom_buffer//2) % self.app.cell_width == 0:
-            if self.direction == vec(1,0) or self.direction == vec(-1,0):
-                if self.stored_direction !=None:
-                    self.direction = self.stored_direction
-                self.allowed_to_move = self.can_move()
-
-        if int(self.pixel_pos.y+top_bottom_buffer//2) % self.app.cell_width == 0:
-            if self.direction == vec(0,1) or self.direction == vec(0,-1):
-                if self.stored_direction !=None:
-                    self.direction = self.stored_direction
-                self.allowed_to_move = self.can_move()
+        if self.time_to_move():
+          if self.stored_direction !=None:
+            self.direction = self.stored_direction
+          self.allowed_to_move = self.can_move()
 
         #Setting the grid positition to the same as the pixel position
         self.grid_pos[0] = (self.pixel_pos[0]-top_bottom_buffer+self.app.cell_width//2)//self.app.cell_width+1
@@ -35,6 +28,15 @@ class Player:
 
         if self.on_coin():
             self.eat_coin()
+
+    def time_to_move(self):
+      if int(self.pixel_pos.x+top_bottom_buffer//2) % self.app.cell_width == 0:
+        if self.direction == vec(1, 0) or self.direction == vec(-1, 0):
+          return True
+      if int(self.pixel_pos.y+top_bottom_buffer//2) % self.app.cell_height == 0:
+        if self.direction == vec(0, 1) or self.direction == vec(0, -1):
+          return True   
+      return False
 
     def draw(self):
         pygame.draw.circle(self.app.screen, player_colour, (int(self.pixel_pos.x), int(self.pixel_pos.y)), self.app.cell_width//2)
